@@ -3,6 +3,7 @@
 /** @var yii\web\View $this */
 
 use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 use yii\widgets\DetailView;
 
 $this->title = 'My Yii Application';
@@ -48,9 +49,15 @@ $this->title = 'My Yii Application';
 
 
             <br><br>
-            <?= Html::a('Загрузить документ', ['deduct-transaction', 'user_id' => $model->id], ['class' => 'btn btn-primary']) ?>
 
 
+            <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]) ?>
+
+            <?= $form->field($file, 'imageFile')->fileInput() ?>
+
+            <button>Submit</button>
+
+            <?php ActiveForm::end() ?>
         </div>
     </div>
 </div>

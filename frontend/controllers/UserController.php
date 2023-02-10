@@ -6,10 +6,13 @@ use common\models\BonusSearch;
 use common\models\CreateTransactionDeduct;
 use common\models\TransactionSearch;
 use common\models\User;
+use frontend\models\UploadForm;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -41,8 +44,32 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
+        $file = new UploadForm();
+
+        if (Yii::$app->request->isPost) {
+            $file->imageFile = UploadedFile::getInstance($file, 'imageFile');
+            if ($file->upload()) {
+
+                $reader = IOFactory::createReader('Xlsx');
+                $spreadsheet = $reader->load($file->imageFile->name);
+
+                $reader->setReadDataOnly(true);
+
+
+                $sheetsCount = $spreadsheet->getSheetCount();
+
+                $data = $spreadsheet->getActiveSheet()->toArray();
+
+                foreach ($data as $item):
+                    var_dump($item);
+                endforeach;
+                exit();
+            }
+        }
+
         return $this->render('index', [
             'model' => $this->findModel(Yii::$app->user->id),
+            'file' => $file,
         ]);
     }
 
