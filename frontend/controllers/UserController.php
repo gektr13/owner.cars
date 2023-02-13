@@ -11,8 +11,7 @@ use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\web\UploadedFile;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -44,31 +43,16 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
+        $model = $this->findModel(Yii::$app->user->id);
+
         $file = new UploadForm();
 
-        if (Yii::$app->request->isPost) {
-            $file->imageFile = UploadedFile::getInstance($file, 'imageFile');
-            if ($file->upload()) {
-
-                $reader = IOFactory::createReader('Xlsx');
-                $spreadsheet = $reader->load($file->imageFile->name);
-
-                $reader->setReadDataOnly(true);
-
-
-                $sheetsCount = $spreadsheet->getSheetCount();
-
-                $data = $spreadsheet->getActiveSheet()->toArray();
-
-                foreach ($data as $item):
-                    var_dump($item);
-                endforeach;
-                exit();
-            }
+        if (Yii::$app->request->isPost && $file->loadToRead($model)) {
+            $this->redirect(['user/transaction']);
         }
 
         return $this->render('index', [
-            'model' => $this->findModel(Yii::$app->user->id),
+            'model' => $model,
             'file' => $file,
         ]);
     }
@@ -78,7 +62,7 @@ class UserController extends Controller
      *
      * @return string
      */
-    public function actionTransaction()
+    public function actionTransaction(): string
     {
         $model = $this->findModel(Yii::$app->user->id);
 
@@ -98,7 +82,7 @@ class UserController extends Controller
     }
 
     /**
-     * User Transactions.
+     * User Bonus.
      *
      * @return string
      */
@@ -139,9 +123,15 @@ class UserController extends Controller
     }
 
 
+    /**
+     * Finds the User model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $user_id ID
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException if the model cannot be found
+     */
     public function actionDeductTransaction($user_id)
     {
-
         $model = new CreateTransactionDeduct(['user' => $this->findModel($user_id)]);
 
         if ($model->load(\Yii::$app->request->post()) && $model->create()) {

@@ -12,7 +12,7 @@ $this->title = 'My Yii Application';
     <div class="p-5 mb-4 bg-transparent rounded-3">
 
         <div class="col-lg-4">
-            <h2>Привет <?= Yii::$app->user->identity->username  ?></h2>
+            <h2>Привет <?= Yii::$app->user->identity->username ?></h2>
 
             <?= DetailView::widget([
                 'model' => $model,
@@ -53,7 +53,7 @@ $this->title = 'My Yii Application';
 
             <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]) ?>
 
-            <?= $form->field($file, 'imageFile')->fileInput() ?>
+            <?= $form->field($file, 'xlsxFile')->fileInput() ?>
 
             <button>Submit</button>
 

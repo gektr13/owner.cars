@@ -2,6 +2,8 @@
 
 namespace frontend\models;
 
+use common\models\CreateTransactionDeduct;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use yii\base\Model;
 use yii\web\UploadedFile;
 
@@ -10,22 +12,61 @@ class UploadForm extends Model
     /**
      * @var UploadedFile
      */
-    public $imageFile;
+    public $xlsxFile;
 
+    /**
+     * {@inheritdoc}
+     */
     public function rules()
     {
         return [
-            [['imageFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'xls, xlsx'],
+            [['xlsxFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'xls, xlsx'],
         ];
     }
 
-    public function upload()
+    /**
+     * Load file.
+     *
+     * @param string $filename modified filename
+     * @return bool whether the email was sent
+     */
+    public function upload($filename)
     {
         if ($this->validate()) {
-            $this->imageFile->saveAs('uploads/' . $this->imageFile->baseName . '.' . $this->imageFile->extension);
+            $this->xlsxFile->saveAs($filename);
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Load and Read File.
+     *
+     * @param string $user User
+     * @return bool whether the email was sent
+     */
+    public function loadToRead($user)
+    {
+        $this->xlsxFile = UploadedFile::getInstance($this, 'xlsxFile');
+        $file_name = $user->id . '_' . time() . '.' . $this->xlsxFile->extension;
+        if ($this->upload($file_name)) {
+
+            $reader = IOFactory::createReader('Xlsx');
+            $spreadsheet = $reader->load($file_name);
+            $reader->setReadDataOnly(true);
+            $data = $spreadsheet->getActiveSheet()->toArray();
+
+            $model = new CreateTransactionDeduct(['user' => $user]);
+
+            $transaction['CreateTransactionDeduct']['value'] = $data[1][1];
+            $transaction['CreateTransactionDeduct']['purpose'] = $data[1][2];
+
+            if ($model->load($transaction) && $model->create()) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }
