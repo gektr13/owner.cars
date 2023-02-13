@@ -44,50 +44,31 @@ class UserController extends Controller
     {
         $searchModel = new UserSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
-        $gridColumns = [
-            'id',
-            'username',
-            'balance',
-            'bonus',
-            'created_at',
-            'updated_at',
-            ['class' => 'yii\grid\ActionColumn'],
-        ];
 
         return $this->render('index', [
             'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-            'gridColumns' => $gridColumns,
+            'dataProvider' => $dataProvider
         ]);
     }
 
     /**
-     * Displays a single User model.
-     * @param int $id ID
+     * @param $id
      * @return string
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
-        $searchModelTranscation = new TransactionSearch(
-            [
-                'user_id' => $id
-            ],
-        );
+        $searchModelTransaction = new TransactionSearch(['user_id' => $id]);
 
-        $dataProviderTransaction = $searchModelTranscation->search($this->request->queryParams);
+        $dataProviderTransaction = $searchModelTransaction->search($this->request->queryParams);
 
-        $searchModelBonus = new BonusSearch(
-            [
-                'user_id' => $id
-            ],
-        );
+        $searchModelBonus = new BonusSearch(['user_id' => $id],);
 
         $dataProviderBonus = $searchModelBonus->search($this->request->queryParams);
 
         return $this->render('view', [
             'model' => $this->findModel($id),
-            'searchModelTransaction' => $searchModelTranscation,
+            'searchModelTransaction' => $searchModelTransaction,
             'dataProviderTransaction' => $dataProviderTransaction,
             'searchModelBonus' => $searchModelBonus,
             'dataProviderBonus' => $dataProviderBonus,

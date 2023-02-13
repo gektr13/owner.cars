@@ -1,6 +1,5 @@
 <?php
 
-use backend\models\Organization;
 use backend\models\User;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -16,6 +15,16 @@ use kartik\export\ExportMenu;
 
 $this->title = 'Пользователи';
 $this->params['breadcrumbs'][] = $this->title;
+
+$gridColumns = [
+    'id',
+    'username',
+    'balance',
+    'bonus',
+    'created_at',
+    'updated_at',
+    ['class' => 'yii\grid\ActionColumn'],
+];
 ?>
 <div class="organization-index">
 

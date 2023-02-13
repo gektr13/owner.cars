@@ -7,9 +7,9 @@ use yii\grid\GridView;
 /** @var yii\web\View $this */
 /** @var backend\models\User $model */
 /** @var yii\data\ActiveDataProvider $dataProviderTransaction */
-/** @var backend\models\TransactionSearch $searchModelTransaction */
+/** @var common\models\TransactionSearch $searchModelTransaction */
 /** @var yii\data\ActiveDataProvider $dataProviderBonus */
-/** @var backend\models\BonusSearch $searchModelBonus */
+/** @var common\models\BonusSearch $searchModelBonus */
 
 
 $this->title = $model->username;

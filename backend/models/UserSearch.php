@@ -14,6 +14,7 @@ class UserSearch extends User
 
     public $balance;
     public $bonus;
+
     /**
      * {@inheritdoc}
      */
@@ -21,7 +22,7 @@ class UserSearch extends User
     {
         return [
             [['id', 'status', 'created_at', 'updated_at', 'is_admin'], 'integer'],
-            [['username', 'auth_key', 'password_hash', 'password_reset_token', 'email', 'verification_token','bonus','balance'], 'safe'],
+            [['username', 'auth_key', 'password_hash', 'password_reset_token', 'email', 'verification_token', 'bonus', 'balance'], 'safe'],
         ];
     }
 
@@ -43,21 +44,27 @@ class UserSearch extends User
      */
     public function search($params)
     {
-       // $query = User::find();
+        $query = User::find()->select([
+                'user.*',
+                'balance' => '(SELECT SUM(value) FROM transaction WHERE transaction.user_id = user.id)',
+                'bonus' => '(SELECT SUM(value) FROM bonus WHERE bonus.user_id = user.id)',
+            ]
+        );
 
-        $query = User::find()->select('user.id, user.username,transaction.balance,bonus.bonus, user.created_at, user.updated_at');
 
-        $balanceQuery = Transaction::find()
-            ->select('user_id, SUM(value) as balance')
-            ->groupBy('user_id');
-
-        $bonusQuery = Bonus::find()
-            ->select('user_id, SUM(value) as bonus')
-            ->groupBy('user_id');
-
-        $query->join('LEFT JOIN', ['transaction' => $balanceQuery], 'transaction.user_id = id');
-
-        $query->join('LEFT JOIN', ['bonus' => $bonusQuery], 'bonus.user_id = id');
+//        $query = User::find()->select('user.id, user.username,transaction.balance,bonus.bonus, user.created_at, user.updated_at');
+//
+//        $balanceQuery = Transaction::find()
+//            ->select('user_id, SUM(value) as balance')
+//            ->groupBy('user_id');
+//
+//        $bonusQuery = Bonus::find()
+//            ->select('user_id, SUM(value) as bonus')
+//            ->groupBy('user_id');
+//
+//        $query->join('LEFT JOIN', ['transaction' => $balanceQuery], 'transaction.user_id = id');
+//
+//        $query->join('LEFT JOIN', ['bonus' => $bonusQuery], 'bonus.user_id = id');
 
         // add conditions that should always apply here
 

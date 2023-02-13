@@ -40,19 +40,18 @@ class UserController extends Controller
      * User information.
      *
      * @return string
+     * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
-        $model = $this->findModel(Yii::$app->user->id);
-
         $file = new UploadForm();
 
-        if (Yii::$app->request->isPost && $file->loadToRead($model)) {
+        if (Yii::$app->request->isPost && $file->loadToRead()) {
             $this->redirect(['user/transaction']);
         }
 
         return $this->render('index', [
-            'model' => $model,
+            'model' => $this->findModel(),
             'file' => $file,
         ]);
     }
@@ -61,10 +60,11 @@ class UserController extends Controller
      * User Transactions.
      *
      * @return string
+     * @throws NotFoundHttpException
      */
     public function actionTransaction(): string
     {
-        $model = $this->findModel(Yii::$app->user->id);
+        $model = $this->findModel();
 
         $searchModel = new TransactionSearch(
             [
@@ -85,16 +85,13 @@ class UserController extends Controller
      * User Bonus.
      *
      * @return string
+     * @throws NotFoundHttpException
      */
     public function actionBonus()
     {
-        $model = $this->findModel(Yii::$app->user->id);
+        $model = $this->findModel();
 
-        $searchModel = new BonusSearch(
-            [
-                'user_id' => $model->id,
-            ],
-        );
+        $searchModel = new BonusSearch(['user_id' => $model->id]);
 
         $dataProvider = $searchModel->search($this->request->queryParams);
 
@@ -113,9 +110,9 @@ class UserController extends Controller
      * @return User the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel()
     {
-        if (($model = User::findOne(['id' => $id])) !== null) {
+        if (($model = User::findOne(['id' => Yii::$app->user->id])) !== null) {
             return $model;
         }
 
@@ -126,13 +123,12 @@ class UserController extends Controller
     /**
      * Finds the User model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $user_id ID
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDeductTransaction($user_id)
+    public function actionDeductTransaction()
     {
-        $model = new CreateTransactionDeduct(['user' => $this->findModel($user_id)]);
+        $model = new CreateTransactionDeduct(['user' => $this->findModel()]);
 
         if ($model->load(\Yii::$app->request->post()) && $model->create()) {
             return $this->redirect(['user/transaction']);

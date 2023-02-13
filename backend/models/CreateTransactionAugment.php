@@ -2,7 +2,6 @@
 
 namespace backend\models;
 
-
 use yii\base\Model;
 
 class CreateTransactionAugment extends Model
@@ -30,6 +29,7 @@ class CreateTransactionAugment extends Model
         return [
             [['value'], 'number', 'min' => 1],
             [['purpose'], 'string', 'max' => 255],
+            [['value', 'purpose'], 'required'],
         ];
     }
 
@@ -53,7 +53,7 @@ class CreateTransactionAugment extends Model
 
             $model = new Transaction();
             $model->user_id = $this->user->id;
-            $model->value = abs($this->value);
+            $model->value = $this->value;
             $model->purpose = $this->purpose;
 
             if ($model->save()) {
@@ -63,20 +63,22 @@ class CreateTransactionAugment extends Model
                 $bonus->transaction_id = $model->id;
                 $bonus->value = $model->value * 0.1;
 
-                if($bonus->save()){
+                if ($bonus->save()) {
                     $t->commit();
 
                     return true;
-                }else{
-                    throw new \Exception('Не удалось сохранить бонусы' . json_encode($model->errors));
+                } else {
+
+                    $this->addError('error', 'Введите данные',);
+
                 }
             } else {
-                throw new \Exception('Не удалось сохранить транзакцию ' . json_encode($model->errors));
+                $this->addError('error', 'Введите данные!');
             }
         } catch (\Exception $e) {
             $t->rollBack();
             throw $e;
         }
+        return false;
     }
-
 }

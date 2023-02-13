@@ -2,8 +2,6 @@
 
 namespace backend\models;
 
-use Yii;
-
 /**
  * This is the model class for table "user".
  *
@@ -16,6 +14,8 @@ use Yii;
  * @property int $status
  * @property int $created_at
  * @property int $updated_at
+ * @property int $bonus
+ * @property int $balance
  * @property string|null $verification_token
  * @property int|null $is_admin
  */

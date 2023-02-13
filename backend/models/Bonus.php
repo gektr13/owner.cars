@@ -2,14 +2,13 @@
 
 namespace backend\models;
 
-
-
 use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "bonus".
  *
  * @property int $id
+ * @property int $user_id
  * @property int|null $transaction_id
  * @property int|null $value
  * @property string|null $created_at
@@ -45,7 +44,7 @@ class Bonus extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['transaction_id', 'value', 'created_at'], 'integer'],
+            [['transaction_id', 'created_at'], 'integer'],
             [['value'], 'required'],
             [['value'], 'number'],
             [['transaction_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transaction::class, 'targetAttribute' => ['transaction_id' => 'id']],

@@ -4,6 +4,7 @@ namespace frontend\models;
 
 use common\models\CreateTransactionDeduct;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Yii;
 use yii\base\Model;
 use yii\web\UploadedFile;
 
@@ -46,10 +47,10 @@ class UploadForm extends Model
      * @param string $user User
      * @return bool whether the email was sent
      */
-    public function loadToRead($user)
+    public function loadToRead()
     {
         $this->xlsxFile = UploadedFile::getInstance($this, 'xlsxFile');
-        $file_name = $user->id . '_' . time() . '.' . $this->xlsxFile->extension;
+        $file_name = Yii::$app->user->getId() . '_' . time() . '.' . $this->xlsxFile->extension;
         if ($this->upload($file_name)) {
 
             $reader = IOFactory::createReader('Xlsx');
@@ -57,7 +58,7 @@ class UploadForm extends Model
             $reader->setReadDataOnly(true);
             $data = $spreadsheet->getActiveSheet()->toArray();
 
-            $model = new CreateTransactionDeduct(['user' => $user]);
+            $model = new CreateTransactionDeduct(['user' => Yii::$app->user]);
 
             $transaction['CreateTransactionDeduct']['value'] = $data[1][1];
             $transaction['CreateTransactionDeduct']['purpose'] = $data[1][2];
@@ -68,5 +69,6 @@ class UploadForm extends Model
                 return false;
             }
         }
+        return false;
     }
 }

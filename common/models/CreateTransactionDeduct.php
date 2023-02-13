@@ -2,10 +2,8 @@
 
 namespace common\models;
 
-
 use backend\models\Bonus;
 use backend\models\Transaction;
-use Yii;
 use yii\base\Model;
 
 class CreateTransactionDeduct extends Model
@@ -33,6 +31,7 @@ class CreateTransactionDeduct extends Model
         return [
             [['value'], 'number', 'min' => 1],
             [['purpose'], 'string', 'max' => 255],
+            [['value', 'purpose'], 'required'],
         ];
     }
 
@@ -61,8 +60,8 @@ class CreateTransactionDeduct extends Model
             $model->user_id = $this->user->id;
             $model->purpose = $this->purpose;
 
-            if (abs($this->value) >= $user->bonus) {
-                $amount_transaction = abs($this->value) - $user->bonus;
+            if ($this->value >= $user->bonus) {
+                $amount_transaction = $this->value - $user->bonus;
                 $model->value = $amount_transaction * -1;
             } else {
                 $amount_transaction = 0;
@@ -73,32 +72,32 @@ class CreateTransactionDeduct extends Model
 
                 if ($model->save()) {
 
-                    if (abs($this->value) - $amount_transaction > 0) {
+                    if ($this->value - $amount_transaction > 0) {
                         $bonus = new Bonus();
                         $bonus->user_id = $user->id;
                         $bonus->transaction_id = $model->id;
 
                         if ($amount_transaction !== 0) {
-                            $bonus->value = (abs($this->value) - $amount_transaction) * -1;
+                            $bonus->value = ($this->value - $amount_transaction) * -1;
                         } else {
-                            $bonus->value = abs($this->value) * -1;
+                            $bonus->value = $this->value * -1;
                         }
 
                         if ($bonus->save()) {
                             $t->commit();
                             return true;
                         } else {
-                            throw new \Exception('Не удалось сохранить бонусную операцию ' . json_encode($user->errors));
+                            $this->addError('error', 'Не удалось сохранить бонусную операцию');
                         }
                     } else {
                         $t->commit();
                         return true;
                     }
                 } else {
-                    Yii::$app->session->setFlash('error', "Сумма меньше нуля!");
+                    $this->addError('error', 'Введите данные!');
                 }
             } else {
-                Yii::$app->session->setFlash('error', "Баланс будет меньше 0!");
+                $this->addError('error', 'Баланс будет меньше 0!');
             }
 
         } catch (\Exception $e) {
