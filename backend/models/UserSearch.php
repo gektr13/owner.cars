@@ -45,14 +45,18 @@ class UserSearch extends User
     public function search($params)
     {
         $query = User::find()->select([
-                'user.*',
+                'user.id',
+                'user.username',
+                'user.created_at',
+                'user.updated_at',
                 'balance' => '(SELECT SUM(value) FROM transaction WHERE transaction.user_id = user.id)',
                 'bonus' => '(SELECT SUM(value) FROM bonus WHERE bonus.user_id = user.id)',
             ]
         );
 
 
-//        $query = User::find()->select('user.id, user.username,transaction.balance,bonus.bonus, user.created_at, user.updated_at');
+
+//        $query = User::find()->select('user.id, user.username, user.created_at, user.updated_at, transaction.balance, bonus.bonus');
 //
 //        $balanceQuery = Transaction::find()
 //            ->select('user_id, SUM(value) as balance')
@@ -65,7 +69,7 @@ class UserSearch extends User
 //        $query->join('LEFT JOIN', ['transaction' => $balanceQuery], 'transaction.user_id = id');
 //
 //        $query->join('LEFT JOIN', ['bonus' => $bonusQuery], 'bonus.user_id = id');
-
+//        print_r(  $query->createCommand()->getRawSql());exit();
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
@@ -95,11 +99,14 @@ class UserSearch extends User
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
-            'balance' => $this->balance,
-            'bonus' => $this->bonus,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'is_admin' => $this->is_admin,
+        ]);
+
+        $query->andFilterHaving([
+            'balance' => $this->balance,
+            'bonus' => $this->bonus,
         ]);
 
         $query->andFilterWhere(['like', 'username', $this->username])
