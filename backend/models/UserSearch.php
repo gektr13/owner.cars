@@ -54,22 +54,6 @@ class UserSearch extends User
             ]
         );
 
-
-
-//        $query = User::find()->select('user.id, user.username, user.created_at, user.updated_at, transaction.balance, bonus.bonus');
-//
-//        $balanceQuery = Transaction::find()
-//            ->select('user_id, SUM(value) as balance')
-//            ->groupBy('user_id');
-//
-//        $bonusQuery = Bonus::find()
-//            ->select('user_id, SUM(value) as bonus')
-//            ->groupBy('user_id');
-//
-//        $query->join('LEFT JOIN', ['transaction' => $balanceQuery], 'transaction.user_id = id');
-//
-//        $query->join('LEFT JOIN', ['bonus' => $bonusQuery], 'bonus.user_id = id');
-//        print_r(  $query->createCommand()->getRawSql());exit();
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
